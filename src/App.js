@@ -30,15 +30,24 @@ const list = [
   }
 ];
 
+function isSearched(searchTerm) {
+  return function(item) {
+    // return a true of false statement
+    return item.title.toLowerCase().includes(searchTerm.toLowerCase());
+  };
+}
+
 class App extends Component {
   //constructor stuff
   constructor(props) {
     super(props);
     this.state = {
-      list: list
+      list: list,
+      searchTerm: ""
     };
     // bind on dismiss dunction to the app component class
     this.onDismiss = this.onDismiss.bind(this);
+    this.searchChange = this.searchChange.bind(this);
   }
   onDismiss(id) {
     const isNotId = item => item.objectID !== id;
@@ -46,11 +55,19 @@ class App extends Component {
     this.setState({ list: updatedList });
   }
 
+  searchChange(event) {
+    console.log(event.target.value);
+    this.setState({ searchTerm: event.target.value });
+  }
+
   // render method
   render() {
     return (
       <div className="App">
-        {this.state.list.map(item => {
+        <form>
+          <input type="text" onChange={this.searchChange} />
+        </form>
+        {this.state.list.filter(isSearched(this.state.searchTerm)).map(item => {
           return (
             <div key={item.objectID}>
               <span>
