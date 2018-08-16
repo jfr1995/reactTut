@@ -13,7 +13,7 @@ const list = [
   },
 
   {
-    title: "Sega CD ",
+    title: "Hugh Jass",
     url: "http://www.ign.com",
     author: "rich",
     num_of_comments: 10,
@@ -62,10 +62,70 @@ class App extends Component {
 
   // render method
   render() {
+    const { list, searchTerm } = this.state;
     return (
       <div className="App">
-        <form>
-          <input type="text" onChange={this.searchChange} />
+        <Search value={searchTerm} onChange={this.searchChange} />
+        <Table list={list} onDismiss={this.onDismiss} pattern={searchTerm} />
+      </div>
+    );
+  }
+}
+
+////////////////////////// SEARCH COMPONENT ////////////////////////////
+class Search extends Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    const { val, onChange } = this.props;
+    return (
+      <form>
+        <input type="text" value={val} onChange={onChange} />
+      </form>
+    );
+  }
+}
+
+////////////////////////// TABLE COMPONENT ////////////////////////////
+
+class Table extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    const { list, onDismiss, pattern } = this.props;
+    return (
+      <div>
+        {list.filter(isSearched(pattern)).map(item => (
+          <div key={item.objectID}>
+            <span>
+              <a href={item.url}>{item.title}</a>
+            </span>
+            <span>{item.author}</span>
+            <span>{item.num_of_comments}</span>
+            <span>{item.points}</span>
+            <button type="button" onClick={() => onDismiss(item.objectID)}>
+              Dismiss
+            </button>
+          </div>
+        ))}
+      </div>
+    );
+  }
+}
+
+export default App;
+
+// ignore
+/* 
+<form>
+          <input
+            type="text"
+            onChange={this.searchChange}
+            value={this.state.searchTerm}
+          />
         </form>
         {this.state.list.filter(isSearched(this.state.searchTerm)).map(item => {
           return (
@@ -87,10 +147,4 @@ class App extends Component {
               </span>
             </div>
           );
-        })}
-      </div>
-    );
-  }
-}
-
-export default App;
+        })} */
