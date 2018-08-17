@@ -117,34 +117,3 @@ class Table extends Component {
 }
 
 export default App;
-
-// ignore
-/* 
-<form>
-          <input
-            type="text"
-            onChange={this.searchChange}
-            value={this.state.searchTerm}
-          />
-        </form>
-        {this.state.list.filter(isSearched(this.state.searchTerm)).map(item => {
-          return (
-            <div key={item.objectID}>
-              <span>
-                <a href={item.url}>{item.title}</a>
-              </span>
-              <span>{item.author}</span>
-              <span>{item.points}</span>
-              <span>
-                <button
-                  onClick={() => {
-                    this.onDismiss(item.objectID);
-                  }}
-                  type="button"
-                >
-                  Dismiss
-                </button>
-              </span>
-            </div>
-          );
-        })} */
