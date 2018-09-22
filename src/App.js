@@ -2,9 +2,14 @@ import React, { Component } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 
+const DEFAULT_QUERY = "redux";
+const PATH_BASE = "https://hn.algolia.com/api/v1";
+const PATH_SEARCH = "/search";
+const PARAM_SEARCH = "query=";
+const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}`;
 const list = [
   {
-    title: "Birdmen",
+    title: "Birden",
     url: "http://www.ign.com",
     author: "filip",
     num_of_comments: 3,
