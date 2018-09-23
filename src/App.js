@@ -80,61 +80,75 @@ class App extends Component {
   }
 }
 
-////////////////////////// SEARCH COMPONENT ////////////////////////////
-class Search extends Component {
-  constructor(props) {
-    super(props);
-  }
-  render() {
-    const { val, onChange, children } = this.props;
-    return (
-      <form>
-        {children}
-        <input type="text" value={val} onChange={onChange} />
-      </form>
-    );
-  }
-}
+////////////////////////// SEARCH COMPONENT (functional component) ////////////////////////////
+const Search = ({ value, onChange, children }) => {
+  return (
+    <form>
+      {children}
+      <input type="text" onChange={onChange} value={value} />
+    </form>
+  );
+};
 
-////////////////////////// TABLE COMPONENT ////////////////////////////
+////////////////////////// TABLE COMPONENT (functional component) ////////////////////////////
 
-class Table extends Component {
-  constructor(props) {
-    super(props);
-  }
+// class Table extends Component {
+//   constructor(props) {
+//     super(props);
+//   }
 
-  render() {
-    const { list, onDismiss, pattern } = this.props;
-    return (
-      <div>
-        {list.filter(isSearched(pattern)).map(item => (
-          <div key={item.objectID}>
-            <span>
-              <a href={item.url}>{item.title}</a>
-            </span>
-            <span>{item.author}</span>
-            <span>{item.num_of_comments}</span>
-            <span>{item.points}</span>
-            <Button onClick={() => onDismiss(item.objectID)}>Dismiss</Button>
-          </div>
-        ))}
-      </div>
-    );
-  }
-}
+//   render() {
+//     const { list, onDismiss, pattern } = this.props;
+//     return (
+//       <div>
+//         {list.filter(isSearched(pattern)).map(item => (
+//           <div key={item.objectID}>
+//             <span>
+//               <a href={item.url}>{item.title}</a>
+//             </span>
+//             <span>{item.author}</span>
+//             <span>{item.num_of_comments}</span>
+//             <span>{item.points}</span>
+//             <Button onClick={() => onDismiss(item.objectID)}>Dismiss</Button>
+//           </div>
+//         ))}
+//       </div>
+//     );
+//   }
+// }
 
-////////////////////////// BUTTON COMPONENT /////////////////////////
+const Table = ({ list, onDismiss, pattern }) => {
+  return (
+    <div>
+      {list.filter(isSearched(pattern)).map(item => {
+        <div key={item.objectID}>
+          <span>
+            <a href={item.url}> {item.title} </a>
+          </span>
+          <span>{item.author} </span>
+          <span>{item.num_of_comments} </span>
+          <span>{item.points}</span>
+          <Button
+            onClick={() => {
+              onDismiss(item.objectID);
+            }}
+          >
+            {" "}
+            Dismiss
+          </Button>
+        </div>;
+      })}
+    </div>
+  );
+};
 
-class Button extends React.Component {
-  render() {
-    const { className, onClick, children } = this.props;
+////////////////////////// BUTTON COMPONENT(functional component) /////////////////////////
 
-    return (
-      <button type="button" onClick={onClick} className={className}>
-        {children}
-      </button>
-    );
-  }
-}
-
+const Button = ({ onClick, className = "", children }) => {
+  return (
+    <button type="button" className={className} onClick={onClick}>
+      {children}
+    </button>
+  );
+};
 export default App;
