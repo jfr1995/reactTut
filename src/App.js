@@ -70,7 +70,10 @@ class App extends Component {
     const { list, searchTerm } = this.state;
     return (
       <div className="App">
-        <Search value={searchTerm} onChange={this.searchChange} />
+        <Search value={searchTerm} onChange={this.searchChange}>
+          {" "}
+          Search{" "}
+        </Search>
         <Table list={list} onDismiss={this.onDismiss} pattern={searchTerm} />
       </div>
     );
@@ -83,9 +86,10 @@ class Search extends Component {
     super(props);
   }
   render() {
-    const { val, onChange } = this.props;
+    const { val, onChange, children } = this.props;
     return (
       <form>
+        {children}
         <input type="text" value={val} onChange={onChange} />
       </form>
     );
@@ -111,12 +115,24 @@ class Table extends Component {
             <span>{item.author}</span>
             <span>{item.num_of_comments}</span>
             <span>{item.points}</span>
-            <button type="button" onClick={() => onDismiss(item.objectID)}>
-              Dismiss
-            </button>
+            <Button onClick={() => onDismiss(item.objectID)}>Dismiss</Button>
           </div>
         ))}
       </div>
+    );
+  }
+}
+
+////////////////////////// BUTTON COMPONENT /////////////////////////
+
+class Button extends React.Component {
+  render() {
+    const { className, onClick, children } = this.props;
+
+    return (
+      <button type="button" onClick={onClick} className={className}>
+        {children}
+      </button>
     );
   }
 }
