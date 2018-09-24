@@ -121,22 +121,24 @@ const Table = ({ list, onDismiss, pattern }) => {
   return (
     <div>
       {list.filter(isSearched(pattern)).map(item => {
-        <div key={item.objectID}>
-          <span>
-            <a href={item.url}> {item.title} </a>
-          </span>
-          <span>{item.author} </span>
-          <span>{item.num_of_comments} </span>
-          <span>{item.points}</span>
-          <Button
-            onClick={() => {
-              onDismiss(item.objectID);
-            }}
-          >
-            {" "}
-            Dismiss
-          </Button>
-        </div>;
+        return (
+          <div key={item.objectID}>
+            <span>
+              <a href={item.url}> {item.title} </a>
+            </span>
+            <span>{item.author} </span>
+            <span>{item.num_of_comments} </span>
+            <span>{item.points}</span>
+            <Button
+              onClick={() => {
+                onDismiss(item.objectID);
+              }}
+            >
+              {" "}
+              Dismiss
+            </Button>
+          </div>
+        );
       })}
     </div>
   );
