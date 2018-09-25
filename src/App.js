@@ -32,9 +32,9 @@ class App extends Component {
     this.fetchTopSearchStories = this.fetchTopSearchStories.bind(this);
   }
 
-  fetchTopSearchStories(searchTerm) {
+  fetchTopSearchStories(searchTerm, page = 0) {
     fetch(
-      `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}`
+      `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}`
     )
       .then(response => response.json())
       .then(result => this.searchTopStories(result))
@@ -48,7 +48,15 @@ class App extends Component {
   }
 
   searchTopStories(result) {
-    this.setState({ result });
+    const { hits, page } = result;
+
+    const oldHits = page !== 0 ? this.state.result.hits : [];
+
+    const updatedHits = [...oldHits, ...hits];
+
+    this.setState({
+      result: { hits: updatedHits, page }
+    });
   }
   onDismiss(id) {
     const isNotId = item => item.objectID !== id;
@@ -75,9 +83,11 @@ class App extends Component {
   // render method
   render() {
     const { result, searchTerm } = this.state;
+    const page = (result && result.page) || 0;
     if (!result) {
       return null;
     }
+    console.log(result);
     return (
       <div className="page">
         <div className="interactions">
@@ -97,6 +107,15 @@ class App extends Component {
             pattern={searchTerm}
           />
         ) : null}
+        <div className="interactions">
+          <Button
+            onClick={() => {
+              this.fetchTopSearchStories(searchTerm, page + 1);
+            }}
+          >
+            More
+          </Button>
+        </div>
       </div>
     );
   }
