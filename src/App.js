@@ -7,33 +7,6 @@ const PATH_BASE = "https://hn.algolia.com/api/v1";
 const PATH_SEARCH = "/search";
 const PARAM_SEARCH = "query=";
 const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}`;
-const list = [
-  {
-    title: "Birden",
-    url: "http://www.ign.com",
-    author: "filip",
-    num_of_comments: 3,
-    points: 2,
-    objectID: 0
-  },
-
-  {
-    title: "Hugh Jass",
-    url: "http://www.ign.com",
-    author: "rich",
-    num_of_comments: 10,
-    points: 33,
-    objectID: 1
-  },
-  {
-    title: "WingsOfRedemption",
-    url: "http://www.ign.com",
-    author: "Jordie",
-    num_of_comments: 393,
-    points: 0,
-    objectID: 2
-  }
-];
 
 function isSearched(searchTerm) {
   return function(item) {
@@ -47,12 +20,17 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      list: list,
-      searchTerm: ""
+      result: null,
+      searchTerm: DEFAULT_QUERY
     };
     // bind on dismiss dunction to the app component class
     this.onDismiss = this.onDismiss.bind(this);
     this.searchChange = this.searchChange.bind(this);
+    this.searchTopStories = this.searchTopStories.bind(this);
+  }
+
+  searchTopStories(result) {
+    this.setState({ result });
   }
   onDismiss(id) {
     const isNotId = item => item.objectID !== id;
@@ -64,10 +42,20 @@ class App extends Component {
     console.log(event.target.value);
     this.setState({ searchTerm: event.target.value });
   }
+  componentDidMount() {
+    const { searchTerm } = this.state;
+    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
+      .then(response => response.json())
+      .then(result => this.searchTopStories(result))
+      .catch(error => error);
+  }
 
   // render method
   render() {
-    const { list, searchTerm } = this.state;
+    const { searchTerm, result } = this.state;
+    if (!result) {
+      return null;
+    }
     return (
       <div className="page">
         <div className="interactions">
@@ -76,7 +64,11 @@ class App extends Component {
             Search{" "}
           </Search>
         </div>
-        <Table list={list} onDismiss={this.onDismiss} pattern={searchTerm} />
+        <Table
+          list={result.hits}
+          onDismiss={this.onDismiss}
+          pattern={searchTerm}
+        />
       </div>
     );
   }
