@@ -6,7 +6,8 @@ const DEFAULT_QUERY = "redux";
 const PATH_BASE = "https://hn.algolia.com/api/v1";
 const PATH_SEARCH = "/search";
 const PARAM_SEARCH = "query=";
-const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}`;
+const PARAM_PAGE = "page=";
+const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}&${PARAM_PAGE}`;
 
 function isSearched(searchTerm) {
   return function(item) {
@@ -27,6 +28,23 @@ class App extends Component {
     this.onDismiss = this.onDismiss.bind(this);
     this.searchChange = this.searchChange.bind(this);
     this.searchTopStories = this.searchTopStories.bind(this);
+    this.onSearchSubmit = this.onSearchSubmit.bind(this);
+    this.fetchTopSearchStories = this.fetchTopSearchStories.bind(this);
+  }
+
+  fetchTopSearchStories(searchTerm) {
+    fetch(
+      `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}`
+    )
+      .then(response => response.json())
+      .then(result => this.searchTopStories(result))
+      .catch(error => error);
+  }
+
+  onSearchSubmit(event) {
+    const { searchTerm } = this.state;
+    this.fetchTopSearchStories(searchTerm);
+    event.preventDefault();
   }
 
   searchTopStories(result) {
@@ -46,7 +64,9 @@ class App extends Component {
   }
   componentDidMount() {
     const { searchTerm } = this.state;
-    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
+    fetch(
+      `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}`
+    )
       .then(response => response.json())
       .then(result => this.searchTopStories(result))
       .catch(error => error);
@@ -61,62 +81,44 @@ class App extends Component {
     return (
       <div className="page">
         <div className="interactions">
-          <Search value={searchTerm} onChange={this.searchChange}>
+          <Search
+            value={searchTerm}
+            onChange={this.searchChange}
+            onSubmit={this.onSearchSubmit}
+          >
             {" "}
             Search{" "}
           </Search>
         </div>
-        <Table
-          list={result.hits}
-          onDismiss={this.onDismiss}
-          pattern={searchTerm}
-        />
+        {result ? (
+          <Table
+            list={result.hits}
+            onDismiss={this.onDismiss}
+            pattern={searchTerm}
+          />
+        ) : null}
       </div>
     );
   }
 }
 
 ////////////////////////// SEARCH COMPONENT (functional component) ////////////////////////////
-const Search = ({ value, onChange, children }) => {
+const Search = ({ value, onChange, onSubmit, children }) => {
   return (
-    <form>
+    <form onSubmit={onSubmit}>
       {children}
       <input type="text" onChange={onChange} value={value} />
+      <button type="submit"> {children} </button>
     </form>
   );
 };
 
 ////////////////////////// TABLE COMPONENT (functional component) ////////////////////////////
 
-// class Table extends Component {
-//   constructor(props) {
-//     super(props);
-//   }
-
-//   render() {
-//     const { list, onDismiss, pattern } = this.props;
-//     return (
-//       <div>
-//         {list.filter(isSearched(pattern)).map(item => (
-//           <div key={item.objectID}>
-//             <span>
-//               <a href={item.url}>{item.title}</a>
-//             </span>
-//             <span>{item.author}</span>
-//             <span>{item.num_of_comments}</span>
-//             <span>{item.points}</span>
-//             <Button onClick={() => onDismiss(item.objectID)}>Dismiss</Button>
-//           </div>
-//         ))}
-//       </div>
-//     );
-//   }
-// }
-
 const Table = ({ list, onDismiss, pattern }) => {
   return (
     <div className="table">
-      {list.filter(isSearched(pattern)).map(item => {
+      {list.map(item => {
         return (
           <div key={item.objectID} className="table-row">
             <span style={{ width: "40%" }}>
