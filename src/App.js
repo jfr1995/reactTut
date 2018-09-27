@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 
+// constant variables to build then url(used for fetching from api)
 const DEFAULT_QUERY = "redux";
 const PATH_BASE = "https://hn.algolia.com/api/v1";
 const PATH_SEARCH = "/search";
@@ -9,30 +10,38 @@ const PARAM_SEARCH = "query=";
 const PARAM_PAGE = "page=";
 const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}&${PARAM_PAGE}`;
 
-function isSearched(searchTerm) {
-  return function(item) {
-    // return a true of false statement
-    return item.title.toLowerCase().includes(searchTerm.toLowerCase());
-  };
-}
-
+// main application component
 class App extends Component {
-  //constructor stuff
+  //constructor (must also call super since there in inheritance from component class)
   constructor(props) {
     super(props);
     this.state = {
       result: null,
       searchTerm: DEFAULT_QUERY
     };
-    // bind on dismiss dunction to the app component class
+    // class methods need to be bound so they can be reffered to in the 'this' object
+
+    // class method for dimissing item in the list
     this.onDismiss = this.onDismiss.bind(this);
+
+    //class method for filtering list
     this.searchChange = this.searchChange.bind(this);
+
+    // set the search property in the compomnent state
     this.searchTopStories = this.searchTopStories.bind(this);
+
+    // fetch additional info from hackernews api
     this.onSearchSubmit = this.onSearchSubmit.bind(this);
+
+    // fetch info from hackernews api
     this.fetchTopSearchStories = this.fetchTopSearchStories.bind(this);
   }
 
+  /*
+  pass in the search value from input field and also the page number for the paginated fetching
+  */
   fetchTopSearchStories(searchTerm, page = 0) {
+    // native fetch api call from the browser an
     fetch(
       `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}`
     )
