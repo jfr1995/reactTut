@@ -3,14 +3,19 @@ import logo from "./logo.svg";
 import "./App.css";
 
 // constant variables to build then url(used for fetching from api)
+const DEFAULT_HPP = 100;
 const DEFAULT_QUERY = "redux";
 const PATH_BASE = "https://hn.algolia.com/api/v1";
 const PATH_SEARCH = "/search";
 const PARAM_SEARCH = "query=";
 const PARAM_PAGE = "page=";
-const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}&${PARAM_PAGE}`;
+const PARAM_HPP = "hitsPerPage=";
 
-// main application component
+// this url will be passed to the fetch call.
+const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}&${PARAM_PAGE}s`;
+
+// main application component renders just two elements which are the search and table component
+// also maintains a component state which has the properties of result and search term.
 class App extends Component {
   //constructor (must also call super since there in inheritance from component class)
   constructor(props) {
@@ -41,16 +46,17 @@ class App extends Component {
   pass in the search value from input field and also the page number for the paginated fetching
   */
   fetchTopSearchStories(searchTerm, page = 0) {
-    // native fetch api call from the browser an
+    // native fetch call from web api
     fetch(
-      `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}`
+      `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`
     )
-      .then(response => response.json())
-      .then(result => this.searchTopStories(result))
-      .catch(error => error);
+      .then(response => response.json()) // convert the response to json format
+      .then(result => this.searchTopStories(result)) // once the result is obtained then it is time to update the state of component
+      .catch(error => error); // error handling
   }
 
   onSearchSubmit(event) {
+    //
     const { searchTerm } = this.state;
     this.fetchTopSearchStories(searchTerm);
     event.preventDefault();
@@ -82,7 +88,7 @@ class App extends Component {
   componentDidMount() {
     const { searchTerm } = this.state;
     fetch(
-      `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}`
+      `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}&${PARAM_HPP}${DEFAULT_HPP}`
     )
       .then(response => response.json())
       .then(result => this.searchTopStories(result))
@@ -182,4 +188,5 @@ const Button = ({ onClick, className = "", children }) => {
     </button>
   );
 };
+
 export default App;
