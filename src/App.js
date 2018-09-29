@@ -64,13 +64,14 @@ class App extends Component {
   }
 
   onSearchSubmit(event) {
-    //
     const { searchTerm } = this.state;
     this.setState({ searchKey: searchTerm });
+
     if (this.needsToSearchTopStories(searchTerm)) {
       console.log("ansynchronous call made");
       this.fetchTopSearchStories(searchTerm);
     }
+
     event.preventDefault();
   }
 
@@ -103,7 +104,7 @@ class App extends Component {
   }
 
   searchChange(event) {
-    console.log(event.target.value);
+    //console.log(event.target.value);
     this.setState({ searchTerm: event.target.value });
   }
   componentDidMount() {
