@@ -5,7 +5,7 @@ import "./App.css";
 // constant variables to build then url(used for fetching from api)
 const DEFAULT_HPP = 100;
 const DEFAULT_QUERY = "redux";
-const PATH_BASE = "https://hn.algolia.com/api/v1";
+const PATH_BASE = "https://hn.foo.bar.com/api/v1";
 const PATH_SEARCH = "/search";
 const PARAM_SEARCH = "query=";
 const PARAM_PAGE = "page=";
@@ -23,7 +23,8 @@ class App extends Component {
     this.state = {
       results: null,
       searchKey: "",
-      searchTerm: DEFAULT_QUERY
+      searchTerm: DEFAULT_QUERY,
+      error: null
     };
     // class methods need to be bound so they can be reffered to in the 'this' object
 
@@ -55,8 +56,8 @@ class App extends Component {
       `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`
     )
       .then(response => response.json()) // convert the response to json format
-      .then(result => this.searchTopStories(result)) // once the result is obtained then it is time to update the state of component
-      .catch(error => error); // error handling
+      .then(result => this.searchTopStories(result))
+      .catch(error => this.setState({ error }));
   }
 
   needsToSearchTopStories(searchTerm) {
@@ -116,11 +117,14 @@ class App extends Component {
 
   // render method
   render() {
-    const { results, searchTerm, searchKey } = this.state;
+    const { results, searchTerm, searchKey, error } = this.state;
     const page =
       (results && results[searchKey] && results[searchKey].page) || 0;
     const list =
       (results && results[searchKey] && results[searchKey].hits) || [];
+    if (error) {
+      return <p> something went wrong.</p>;
+    }
     if (!results) {
       return null;
     }
