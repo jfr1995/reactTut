@@ -21,7 +21,8 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      result: null,
+      results: null,
+      searchKey: "",
       searchTerm: DEFAULT_QUERY
     };
     // class methods need to be bound so they can be reffered to in the 'this' object
@@ -40,6 +41,9 @@ class App extends Component {
 
     // fetch info from hackernews api
     this.fetchTopSearchStories = this.fetchTopSearchStories.bind(this);
+
+    // method for checking cache on a search
+    this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this);
   }
 
   /*
@@ -55,29 +59,46 @@ class App extends Component {
       .catch(error => error); // error handling
   }
 
+  needsToSearchTopStories(searchTerm) {
+    return !this.state.results[searchTerm];
+  }
+
   onSearchSubmit(event) {
     //
     const { searchTerm } = this.state;
-    this.fetchTopSearchStories(searchTerm);
+    this.setState({ searchKey: searchTerm });
+    if (this.needsToSearchTopStories(searchTerm)) {
+      console.log("ansynchronous call made");
+      this.fetchTopSearchStories(searchTerm);
+    }
     event.preventDefault();
   }
 
   searchTopStories(result) {
     const { hits, page } = result;
+    const { searchKey, results } = this.state;
 
-    const oldHits = page !== 0 ? this.state.result.hits : [];
-
+    const oldHits =
+      results && results[searchKey] ? results[searchKey].hits : [];
     const updatedHits = [...oldHits, ...hits];
 
     this.setState({
-      result: { hits: updatedHits, page }
+      results: {
+        [searchKey]: { hits: updatedHits, page }
+      }
     });
   }
   onDismiss(id) {
-    const isNotId = item => item.objectID !== id;
-    const updatedHits = this.state.result.hits.filter(isNotId);
+    const { searchKey, results } = this.state;
+    const { hits, page } = results[searchKey];
+
+    const isNotId = item => {
+      return item.objectID !== id;
+    };
+    const updatedHits = hits.filter(isNotId);
+
     this.setState({
-      result: Object.assign({}, this.state.result, { hits: updatedHits })
+      results: { ...results, [searchKey]: { hits: updatedHits, page } }
     });
   }
 
@@ -87,22 +108,21 @@ class App extends Component {
   }
   componentDidMount() {
     const { searchTerm } = this.state;
-    fetch(
-      `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}&${PARAM_HPP}${DEFAULT_HPP}`
-    )
-      .then(response => response.json())
-      .then(result => this.searchTopStories(result))
-      .catch(error => error);
+    this.setState({ searchKey: searchTerm });
+    this.fetchTopSearchStories(searchTerm);
   }
 
   // render method
   render() {
-    const { result, searchTerm } = this.state;
-    const page = (result && result.page) || 0;
-    if (!result) {
+    const { results, searchTerm, searchKey } = this.state;
+    const page =
+      (results && results[searchKey] && results[searchKey].page) || 0;
+    const list =
+      (results && results[searchKey] && results[searchKey].hits) || [];
+    if (!results) {
       return null;
     }
-    console.log(result);
+
     return (
       <div className="page">
         <div className="interactions">
@@ -115,17 +135,13 @@ class App extends Component {
             Search{" "}
           </Search>
         </div>
-        {result ? (
-          <Table
-            list={result.hits}
-            onDismiss={this.onDismiss}
-            pattern={searchTerm}
-          />
+        {results ? (
+          <Table list={list} onDismiss={this.onDismiss} pattern={searchTerm} />
         ) : null}
         <div className="interactions">
           <Button
             onClick={() => {
-              this.fetchTopSearchStories(searchTerm, page + 1);
+              this.fetchTopSearchStories(searchKey, page + 1);
             }}
           >
             More
