@@ -85,6 +85,7 @@ class App extends Component {
 
     this.setState({
       results: {
+        ...results,
         [searchKey]: { hits: updatedHits, page }
       }
     });
